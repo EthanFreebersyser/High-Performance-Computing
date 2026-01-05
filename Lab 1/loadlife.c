@@ -1,23 +1,23 @@
 // The Game Board - with two boards: current and next-gen
-//goal: board[switch][XSIZ][YSIZ]; 2 boards for swapping generations
+//goal: board[switch][ROWSIZ][COLSIZ]; 2 boards for swapping generations
 
 #include <stdio.h>
 #include <stdlib.h>
 
 extern char **board[2];
-extern int XSIZ, YSIZ;
+extern int ROWSIZ, COLSIZ;
 
 /*
  * create both boards: [0] and [1]
  */
-void initBoard(int xsize, int ysize)
+void initBoard(int rowsize, int colsize)
 {
     int b, i;
 
     for(b=0;b<=1;b++) {
-        board[b] = calloc((size_t)xsize, sizeof(char *));
-        for (i=0; i < xsize; i++) {
-            board[b][i] = calloc((size_t)ysize, sizeof(char));
+        board[b] = malloc((size_t)(rowsize * sizeof(char *)));
+        for (i=0; i < rowsize; i++) {
+            board[b][i] = calloc((size_t)colsize, sizeof(char));
         }
     }
 
@@ -32,42 +32,42 @@ void initBoard(int xsize, int ysize)
 void
 displayBoard(int type, char **bp)
 {
-    int i,j;
-    int xfirst, yfirst;
-    int xsize, ysize;
+    int row,col;
+    int colfirst, rowfirst;
+    int colsize, rowsize;
 
     if (type) {
 	if (type >= 1) {	// just the board
-	    xfirst=1;
-	    xsize=XSIZ-1;
-	    yfirst=1;
-	    ysize=YSIZ-1;
+	    rowfirst=1;
+	    rowsize=ROWSIZ-1;
+	    colfirst=1;
+	    colsize=COLSIZ-1;
 	} else {		// include the halo (debugging)
-	    xfirst=0;
-	    xsize=XSIZ;
-	    yfirst=0;
-	    ysize=YSIZ;
+	    rowfirst=0;
+	    rowsize=ROWSIZ;
+	    colfirst=0;
+	    colsize=COLSIZ;
 	}
 	// add a delimiter between successive boards (at the top)
-	for (i=xfirst; i < xsize; i++) {
+	for (col=colfirst; col < colsize; col++) {
 	    printf("-");
 	}
 	printf("\n");
 
-	for (j=yfirst; j < ysize; j++) {
-	    for (i=xfirst; i < xsize; i++) {
-	      printf ("%c", bp[i][j]?'@':' ');  // live=='@'
+	for (row=rowfirst; row < rowsize; row++) {
+	    for (col=colfirst; col < colsize; col++) {
+	      printf ("%c", bp[row][col]?'@':'.');  // live=='@'
 	    }
 	    printf ("|\n");		// add an edge on the RHS
 	}
 	
     } else {				// i.e., type==0
 	// never report on the halo
-        printf ("%d %d\n", XSIZ-2, YSIZ-2);
-	for (j=1; j < YSIZ-1; j++) {
-	    for (i=1; i < XSIZ-1; i++) {
-	      if(bp[i][j]) {
-		  printf ("%d %d\n", i, j);
+        printf ("%d %d\n", ROWSIZ-2, COLSIZ-2);
+	for (row=1; row < ROWSIZ-1; row++) {
+	    for (col=1; col < COLSIZ-1; col++) {
+	      if(bp[row][col]) {
+		  printf ("%d %d\n", row, col);
 	      }
 	    }
 	}
@@ -83,12 +83,12 @@ loadlife()
 {
     int x,y;
     /* first, read in the board size */
-    scanf("%d %d\n", &XSIZ, &YSIZ);
+    scanf("%d %d\n", &ROWSIZ, &COLSIZ);
     // add space for the buffers (+2)
-    XSIZ += 2;
-    YSIZ += 2;
+    ROWSIZ += 2;
+    COLSIZ += 2;
     /* now allocate it */
-    initBoard(XSIZ, YSIZ);
+    initBoard(ROWSIZ, COLSIZ);
 
     /* now read in the existing live cells into board [0] */
     while (scanf("%d %d", &x, &y) != EOF) {

@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 char **board[2];
-int XSIZ, YSIZ;
+int ROWSIZ, COLSIZ;
 
 /*
  *  Fill the edges of the board with data to make a
@@ -15,28 +15,70 @@ int XSIZ, YSIZ;
 void
 periodicBuffer(char **theboard)		// theboard - a 2D array
 {
-    // TODO:  write code for this
 
+	int i;
+	for(i = 0; i < COLSIZ; i++){
+		theboard[0][i] = theboard[ROWSIZ-2][i];
+		theboard[ROWSIZ-1][i] = theboard[1][i];
+	}
+
+	for(i = 0; i < ROWSIZ; i++){
+		theboard[i][0] = theboard[i][COLSIZ-2];
+		theboard[i][COLSIZ-1] = theboard[i][1];
+	}
 } // periodicBuffer
 
 /*
- *  newLife - compute the "life" for cell board[i][j]
+ *  newLife - compute the "life" for cell at [row][col]
  *  		using data from oldboard and putting the
  *  		result (the next generation) into the newboard
  */
 void
-newLife(char **newboard, char **oldboard, int r, int c)
-{
+newLife(char **newboard, char **oldboard, int r, int c){
     // TODO:  write code for this
-    // This code is just a place holder and should be replaced:
-    newboard[r][c] = oldboard[r][c];
+	int i, j;
+	int liveCounter = 0;
+
+	//check all spaces around (r,c) for a live cell
+	//add to liveCounter if there is a live space nearby
+	for (i = -1; i <= 1; i++){
+		for (j = -1; j <= 1; j++){
+			if (i == 0 && j == 0){
+				continue;
+			}
+			if(oldboard[r+i][c+j] == 1){
+				liveCounter++;
+			}
+		}
+	}
+
+	//apply rules to determine the next generation
+	if(oldboard[r][c] == 1){
+		if(liveCounter < 2){
+			newboard[r][c] = 0; 
+		} else if (liveCounter == 2 || liveCounter == 3){
+			newboard[r][c] = 1; 
+		} else if (liveCounter > 3){
+			newboard[r][c] = 0;
+		}
+	} else {
+		if (liveCounter == 3){
+			newboard[r][c] = 1; 
+		} else {
+			newboard[r][c] = 0;
+		}
+	}
+	
+
+	
+	//newboard[r][c] = oldboard[r][c];
 
 } // newLife
 
 int
 main(int argc, char **argv)
 {
-    int i,j;
+    int row,col;
     int gen, genOut, period;
 
     if (argc > 1) {
@@ -58,17 +100,17 @@ main(int argc, char **argv)
 	    system("sleep 0.05");	// TODO: delete for speed
 	 }
 
-	 // TODO: periodicBuffer(board[(gen & 1)]);
+	periodicBuffer(board[(gen & 1)]);
 
-	for (i=1; i < XSIZ-1; i++) {
-	    for (j=1; j < YSIZ-1; j++) {
+	for (row=1; row < ROWSIZ-1; row++) {
+	    for (col=1; col < COLSIZ-1; col++) {
 		if (gen & 1) {
-		    newLife(board[0], board[1], i, j);
+		    newLife(board[0], board[1], row, col);
 		} else {
-		    newLife(board[1], board[0], i, j);
+		    newLife(board[1], board[0], row, col);
 		}
-	    } // next j
-	} // next i
+	    } // next col
+	} // next row
 
     } // next gen
 
